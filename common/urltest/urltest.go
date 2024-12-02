@@ -8,7 +8,11 @@ import (
 	"sync"
 	"time"
 
+<<<<<<< HEAD
 	"github.com/imkira/go-observer/v2"
+=======
+	C "github.com/sagernet/sing-box/constant"
+>>>>>>> v1.10.3
 	"github.com/sagernet/sing/common"
 	M "github.com/sagernet/sing/common/metadata"
 	N "github.com/sagernet/sing/common/network"
@@ -115,6 +119,7 @@ func URLTest(ctx context.Context, link string, detour N.Dialer) (t uint16, err e
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
+		Timeout: C.TCPTimeout,
 	}
 	defer client.CloseIdleConnections()
 	resp, err := client.Do(req.WithContext(ctx))

@@ -14,6 +14,12 @@ const (
 	CommandSetClashMode
 	CommandGetSystemProxyStatus
 	CommandSetSystemProxyEnabled
+<<<<<<< HEAD
 
 	CommandGroupInfoOnly//hiddify
+=======
+	CommandConnections
+	CommandCloseConnection
+	CommandGetDeprecatedNotes
+>>>>>>> v1.10.3
 )

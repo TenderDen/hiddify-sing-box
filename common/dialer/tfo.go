@@ -14,7 +14,13 @@ import (
 	"github.com/sagernet/sing/common/bufio"
 	E "github.com/sagernet/sing/common/exceptions"
 	M "github.com/sagernet/sing/common/metadata"
+<<<<<<< HEAD
 	"github.com/sagernet/tfo-go"
+=======
+	N "github.com/sagernet/sing/common/network"
+
+	"github.com/metacubex/tfo-go"
+>>>>>>> v1.10.3
 )
 
 type slowOpenConn struct {

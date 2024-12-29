@@ -14,12 +14,11 @@ import (
 	aTLS "github.com/sagernet/sing/common/tls"
 )
 
-func NewDialerFromOptions(ctx context.Context, router adapter.Router, dialer N.Dialer, serverAddress IpAddr, options option.OutboundTLSOptions) (N.Dialer, error) {
-        out, err := NewDialerFromOptions(ctx, router, dialer, string(serverAddress), options)
-	return out, err
-}
-
-func NewDialerFromOptions(ctx context.Context, router adapter.Router, dialer N.Dialer, serverAddress string, options option.OutboundTLSOptions) (N.Dialer, error) {
+func NewDialerFromOptions(ctx context.Context, router adapter.Router, dialer N.Dialer, serverAddress interface{}, options option.OutboundTLSOptions) (N.Dialer, error) {
+	switch serverAddress.(type) {
+	case option.IpAddr:
+		serverAddress = string(serverAddress)
+	}
 	if !options.Enabled {
 		return dialer, nil
 	}
@@ -30,12 +29,11 @@ func NewDialerFromOptions(ctx context.Context, router adapter.Router, dialer N.D
 	return NewDialer(dialer, config), nil
 }
 
-func NewClient(ctx context.Context, serverAddress IpAddr, options option.OutboundTLSOptions) (Config, error) {
-        out, err := NewClient(ctx, string(serverAddress), options)
-        return out, err
-}
-
-func NewClient(ctx context.Context, serverAddress string, options option.OutboundTLSOptions) (Config, error) {
+func NewClient(ctx context.Context, serverAddress interface{}, options option.OutboundTLSOptions) (Config, error) {
+	switch serverAddress.(type) {
+	case option.IpAddr:
+		serverAddress = string(serverAddress)
+	}
 	if !options.Enabled {
 		return nil, nil
 	}

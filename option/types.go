@@ -274,17 +274,17 @@ func (h HTTPHeader) Build() http.Header {
 type IpAddr string
 
 func (v *IpAddr) UnmarshalJSON(content []byte) error {
-	var IpAddr []string
-	err := json.Unmarshal(content, &IpAddr)
+	var ipAddrs []string
+	err := json.Unmarshal(content, &ipAddrs)
 	if err != nil {
 		var ipItem string
 		err = json.Unmarshal(content, &ipItem)
 		if err != nil {
 			return err
 		}
-		IpAddr = []string{ipItem}
+		ipAddrs = []string{ipItem}
 	}
-	ip := IpAddr[rand.Intn(len(IpAddr))]
+	ip := ipAddrs[rand.Intn(len(ipAddrs))]
 	if IsValidCIDR(ip) {
         ip = getRandomIPFromCIDR(ip)
     } else if IsValidIPRange(ip) {

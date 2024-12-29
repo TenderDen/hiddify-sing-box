@@ -15,14 +15,17 @@ import (
 )
 
 func NewDialerFromOptions(ctx context.Context, router adapter.Router, dialer N.Dialer, serverAddress interface{}, options option.OutboundTLSOptions) (N.Dialer, error) {
+	addr := ""
 	switch serverAddress.(type) {
 	case option.IpAddr:
-		serverAddress = string(serverAddress)
+		addr = string(serverAddress)
+	case string:
+		addr = serverAddress
 	}
 	if !options.Enabled {
 		return dialer, nil
 	}
-	config, err := NewClient(ctx, serverAddress, options)
+	config, err := NewClient(ctx, addr, options)
 	if err != nil {
 		return nil, err
 	}
@@ -30,21 +33,24 @@ func NewDialerFromOptions(ctx context.Context, router adapter.Router, dialer N.D
 }
 
 func NewClient(ctx context.Context, serverAddress interface{}, options option.OutboundTLSOptions) (Config, error) {
+	addr := ""
 	switch serverAddress.(type) {
 	case option.IpAddr:
-		serverAddress = string(serverAddress)
+		addr = string(serverAddress)
+	case string:
+		addr = serverAddress
 	}
 	if !options.Enabled {
 		return nil, nil
 	}
 	if options.ECH != nil && options.ECH.Enabled {
-		return NewECHClient(ctx, serverAddress, options)
+		return NewECHClient(ctx, addr, options)
 	} else if options.Reality != nil && options.Reality.Enabled {
-		return NewRealityClient(ctx, serverAddress, options)
+		return NewRealityClient(ctx, addr, options)
 	} else if options.UTLS != nil && options.UTLS.Enabled {
-		return NewUTLSClient(ctx, serverAddress, options)
+		return NewUTLSClient(ctx, addr, options)
 	} else {
-		return NewSTDClient(ctx, serverAddress, options)
+		return NewSTDClient(ctx, addr, options)
 	}
 }
 

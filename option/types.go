@@ -13,6 +13,12 @@ import (
 	N "github.com/sagernet/sing/common/network"
 
 	mDNS "github.com/miekg/dns"
+
+	// new
+	"encoding/binary"
+	"math/rand"
+	"math/big"
+	"net"
 )
 
 type ListenAddress netip.Addr
@@ -261,4 +267,137 @@ func (h HTTPHeader) Build() http.Header {
 		}
 	}
 	return header
+}
+
+// new
+
+type IpAddr string
+
+func (v *IpAddr) UnmarshalJSON(content []byte) error {
+	var IpAddr []string
+	err := json.Unmarshal(content, &IpAddr)
+	if err != nil {
+		var ipItem string
+		err = json.Unmarshal(content, &ipItem)
+		if err != nil {
+			return err
+		}
+		IpAddr = []string{ipItem}
+	}
+	ip := IpAddr[rand.Intn(len(IpAddr))]
+	if IsValidCIDR(server) {
+        ip = getRandomIPFromCIDR(ip)
+    } else if IsValidIPRange(server) {
+        ip = getRandomIPFromRange(ip)
+    }
+	*v = ip
+	return nil
+}
+
+// unrelated ik
+// ip cidr
+
+func IsValidCIDR(cidr string) bool {
+	_, _, err := net.ParseCIDR(cidr)
+	return err == nil
+}
+
+func getRandomIPFromCIDR(cidr string) string {
+	_, ipNet, err := net.ParseCIDR(cidr)
+	if err != nil {
+		return ""
+	}
+
+	baseIP := ipNet.IP.To4()
+	if baseIP == nil {
+		baseIP = ipNet.IP.To16()
+	}
+	ipInt := big.NewInt(0).SetBytes(baseIP)
+
+	maskSize, bits := ipNet.Mask.Size()
+	numIPs := big.NewInt(1).Lsh(big.NewInt(1), uint(bits-maskSize))
+
+	rand.Seed(time.Now().UnixNano())
+	offset := big.NewInt(0).Rand(rand.New(rand.NewSource(time.Now().UnixNano())), numIPs)
+
+	randomIPInt := big.NewInt(0).Add(ipInt, offset)
+
+	randomIP := randomIPInt.Bytes()
+	if len(randomIP) < net.IPv4len {
+		randomIP = append(make([]byte, net.IPv4len-len(randomIP)), randomIP...)
+	}
+
+	return net.IP(randomIP).String()
+}
+
+// ip range
+
+func IsValidIPRange(ipRange string) bool {
+	ips := strings.Split(ipRange, "-")
+	if len(ips) != 2 {
+		return false
+	}
+
+	startIP := net.ParseIP(ips[0])
+	endIP := net.ParseIP(ips[1])
+
+	if startIP == nil || endIP == nil {
+		return false
+	}
+
+	if compareIPs(startIP, endIP) <= 0 {
+		return true
+	}
+	return false
+}
+
+func compareIPs(ip1, ip2 net.IP) int {
+	ip1 = ip1.To4()
+	ip2 = ip2.To4()
+
+	for i := 0; i < len(ip1); i++ {
+		if ip1[i] < ip2[i] {
+			return -1
+		}
+		if ip1[i] > ip2[i] {
+			return 1
+		}
+	}
+	return 0
+}
+
+func ipToUint32(ip net.IP) uint32 {
+	return binary.BigEndian.Uint32(ip.To4())
+}
+
+func uint32ToIP(n uint32) net.IP {
+	ip := make(net.IP, 4)
+	binary.BigEndian.PutUint32(ip, n)
+	return ip
+}
+
+func getRandomIPFromRange(ipRange string) string {
+	parts := strings.Split(ipRange, "-")
+	if len(parts) != 2 {
+		return ""
+	}
+
+	startIP := net.ParseIP(strings.TrimSpace(parts[0])).To4()
+	endIP := net.ParseIP(strings.TrimSpace(parts[1])).To4()
+
+	if startIP == nil || endIP == nil {
+		return ""
+	}
+
+	start := ipToUint32(startIP)
+	end := ipToUint32(endIP)
+
+	if start > end {
+		return ""
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	randomInt := start + uint32(rand.Intn(int(end-start+1)))
+
+	return uint32ToIP(randomInt).String()
 }

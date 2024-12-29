@@ -16,11 +16,11 @@ import (
 
 func NewDialerFromOptions(ctx context.Context, router adapter.Router, dialer N.Dialer, serverAddress interface{}, options option.OutboundTLSOptions) (N.Dialer, error) {
 	addr := ""
-	switch serverAddress.(type) {
+	switch z := serverAddress.(type) {
 	case option.IpAddr:
-		addr = string(serverAddress)
+		addr = string(z)
 	case string:
-		addr = serverAddress
+		addr = z
 	}
 	if !options.Enabled {
 		return dialer, nil
@@ -34,11 +34,11 @@ func NewDialerFromOptions(ctx context.Context, router adapter.Router, dialer N.D
 
 func NewClient(ctx context.Context, serverAddress interface{}, options option.OutboundTLSOptions) (Config, error) {
 	addr := ""
-	switch serverAddress.(type) {
+	switch z := serverAddress.(type) {
 	case option.IpAddr:
-		addr = string(serverAddress)
+		addr = string(z)
 	case string:
-		addr = serverAddress
+		addr = z
 	}
 	if !options.Enabled {
 		return nil, nil

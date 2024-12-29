@@ -285,12 +285,12 @@ func (v *IpAddr) UnmarshalJSON(content []byte) error {
 		IpAddr = []string{ipItem}
 	}
 	ip := IpAddr[rand.Intn(len(IpAddr))]
-	if IsValidCIDR(server) {
+	if IsValidCIDR(ip) {
         ip = getRandomIPFromCIDR(ip)
-    } else if IsValidIPRange(server) {
+    } else if IsValidIPRange(ip) {
         ip = getRandomIPFromRange(ip)
     }
-	*v = ip
+	*v = IpAddr(ip)
 	return nil
 }
 

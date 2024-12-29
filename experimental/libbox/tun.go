@@ -152,7 +152,7 @@ func (o *tunOptions) IsHTTPProxyEnabled() bool {
 }
 
 func (o *tunOptions) GetHTTPProxyServer() string {
-	return o.TunPlatformOptions.HTTPProxy.Server
+	return string(o.TunPlatformOptions.HTTPProxy.Server)
 }
 
 func (o *tunOptions) GetHTTPProxyServerPort() int32 {

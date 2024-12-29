@@ -29,7 +29,7 @@ func NewHTTP(ctx context.Context, router adapter.Router, logger log.ContextLogge
 	if err != nil {
 		return nil, err
 	}
-	detour, err := tls.NewDialerFromOptions(ctx, router, outboundDialer, string(options.Server), common.PtrValueOrDefault(options.TLS))
+	detour, err := tls.NewDialerFromOptions(ctx, router, outboundDialer, options.Server, common.PtrValueOrDefault(options.TLS))
 	if err != nil {
 		return nil, err
 	}

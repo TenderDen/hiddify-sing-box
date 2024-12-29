@@ -151,7 +151,7 @@ type ServerOptions struct {
 }
 
 func (o ServerOptions) Build() M.Socksaddr {
-	return M.ParseSocksaddrHostPort(o.Server, o.ServerPort)
+	return M.ParseSocksaddrHostPort(string(o.Server), o.ServerPort)
 }
 
 func (o *ServerOptions) TakeServerOptions() ServerOptions {
